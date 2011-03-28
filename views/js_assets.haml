@@ -1,61 +1,12 @@
 -global $use_ssl;
 :js
-  function this_url(args)
-  {
-    url = '<?=$__core['current_url']?>';
-    return build_url(url,args);
-  }
-  
-  function home_url(args)
-  {
-    url = '<?=home_url()?>';
-    return build_url(url,args);
-  }
+  url_helper.init({
+    current_url: '<?=j($__click['current_url'])?>',
+    home_url: '<?=j(home_url())?>',
+    root_vpath: '<?=j(ROOT_VPATH)?>',
+    http_host: '<?=j($_SERVER['HTTP_HOST'])?>',
+    session_id: '<?=count($_SESSION['__click']['sessions'])>1 ? j($_SESSION['__click']['current_session_id']) : 'null' ?>',
+    use_ssl: <?=$use_ssl ? 'true' : 'false' ?>
+  });
   
   
-  function getParameterByName( name )
-  {
-    name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
-    var regexS = "[\\?&]"+name+"=([^&#]*)";
-    var regex = new RegExp( regexS );
-    var results = regex.exec( window.location.href );
-    if( results == null )
-      return "";
-    else
-      return decodeURIComponent(results[1].replace(/\+/g, " "));
-  }
-  
-  
-  ROOT_VPATH = '<?=j(ROOT_VPATH)?>';
-  
-  function generate_url(path, max_args, args, is_ssl_required)
-  {
-    qs = {}
-    <? if(count($_SESSION['__core']['sessions'])>1) { ?>
-      qs['__session_id'] = '<?=j($_SESSION['__core']['current_session_id'])?>';
-    <? } ?>
-    
-    return _generate_url(
-      path,
-      max_args,
-      args,
-      is_ssl_required,
-      qs,
-      <?=$use_ssl ? 'true' : 'false'?>,
-      '<?=j($_SERVER['HTTP_HOST'])?>'
-    );
-  }
-  
-  
-  <?
-  global $__routes;
-  foreach($__routes as $url_generator_name=>$data)
-  {
-  ?>
-    function <?=$url_generator_name?>_url(<?=join(', ', $data['keys'])?>)
-    {
-      return generate_url('<?=j($data['path'])?>', <?=count($data['keys'])?>, arguments, <?= $data['is_ssl_required'] ? 'true' : 'false' ?>);
-    }
-  <?
-  }
-  ?>
